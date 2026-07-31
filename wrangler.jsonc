@@ -1,5 +1,6 @@
 {
     "name": "guess-song",
+    "account_id": "7659c0dae4e899b3bee76cdb5363057c",
     "main": "src/index.js",
     "compatibility_date": "2025-11-01",
     "assets": {
@@ -10,7 +11,7 @@
     "kv_namespaces": [
         {
             "binding": "KV",
-            "id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+            "id": "c54be703b1ce4a2983e576d6476d7fd4"
         }
     ],
     "observability": { "enabled": true }

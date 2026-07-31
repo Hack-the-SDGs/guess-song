@@ -7,11 +7,13 @@ Cloudflare Workers + KV 的計分板。前端靜態檔（`public/`）由 Workers
 
 ### 1. KV namespace
 
+已經建好並寫進 `wrangler.jsonc` 了。要重建的話：
+
 ```shell
-npx wrangler kv namespace create KV
+npx wrangler kv namespace create song-kv
 ```
 
-把印出來的 `id` 填進 `wrangler.jsonc` 的 `kv_namespaces[0].id`（取代 `REPLACE_WITH_YOUR_KV_NAMESPACE_ID`）。
+把印出來的 `id` 填進 `wrangler.jsonc` 的 `kv_namespaces[0].id`（`binding` 保持 `KV`，程式碼用的是這個名字）。
 
 分數存在單一 key `scores`，不用先建，第一次讀不到就當作全 0。
 
