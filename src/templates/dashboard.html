@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ntust camp 2026 - 後台控制台</title>
+    <!-- 引入像素風格字型 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <!-- 一模一樣的頂端置頂欄 -->
+    <header class="top-header">
+        <a class="header-title">誰是猜歌王</a>
+    </header>
+
+    <!-- 分數顯示區域 (6 隊網格) -->
+    <main class="score-container">
+        <div class="team-card" id="t1">
+            <span class="team-label">第一隊</span>
+            <textarea class="score-box" maxlength="2" rows="1" placeholder="0" readonly></textarea>
+        </div>
+        <div class="team-card" id="t2">
+            <span class="team-label">第二隊</span>
+            <textarea class="score-box" maxlength="2" rows="1" placeholder="0" readonly></textarea>
+        </div>
+        <div class="team-card" id="t3">
+            <span class="team-label">第三隊</span>
+            <textarea class="score-box" maxlength="2" rows="1" placeholder="0" readonly></textarea>
+        </div>
+        <div class="team-card" id="t4">
+            <span class="team-label">第四隊</span>
+            <textarea class="score-box" maxlength="2" rows="1" placeholder="0" readonly></textarea>
+        </div>
+        <div class="team-card" id="t5">
+            <span class="team-label">第五隊</span>
+            <textarea class="score-box" maxlength="2" rows="1" placeholder="0" readonly></textarea>
+        </div>
+        <div class="team-card" id="t6">
+            <span class="team-label">第六隊</span>
+            <textarea class="score-box" maxlength="2" rows="1" placeholder="0" readonly></textarea>
+        </div>
+    </main>
+
+    <!-- 控制面板容器 -->
+    <section class="control-container">
+        
+        <!-- 格子 1：快速加分 -->
+        <div class="control-card">
+            <h2 class="card-title">🎮 快速加分</h2>
+            
+            <div class="input-row">
+                <label for="group">組別 (1-6)</label>
+                <input id="group" type="number" min="1" max="6" placeholder="組別">
+            </div>
+
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input id="year" type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    年份 (+1)
+                </label>
+
+                <label class="checkbox-label">
+                    <input id="name" type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    歌名 (+1)
+                </label>
+
+                <label class="checkbox-label">
+                    <input id="SD" type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    唱/跳 (+1)
+                </label>
+            </div>
+
+            <button id="add_score_btn" class="mc-button btn-green">送出加分</button>
+        </div>
+
+        <!-- 格子 2：直接設定分數 -->
+        <div class="control-card">
+            <h2 class="card-title">✏️ 直接設定分數</h2>
+            <p class="card-subtitle">打錯分數時使用</p>
+
+            <div class="input-row">
+                <label for="group_set">組別 (1-6)</label>
+                <input id="group_set" type="number" min="1" max="6" placeholder="組別">
+            </div>
+
+            <div class="input-row">
+                <label for="score">目標分數</label>
+                <input id="score" type="number" min="0" max="99" placeholder="分數">
+            </div>
+
+            <button id="set_score_btn" class="mc-button btn-gold">重設分數</button>
+        </div>
+
+        <!-- 登出區塊 -->
+        <div class="logout-wrapper">
+            <button id="logout_btn" class="mc-button btn-red">登出系統</button>
+        </div>
+
+    </section>
+</body>
+</html>
