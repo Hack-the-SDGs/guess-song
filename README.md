@@ -18,3 +18,8 @@
     "password": "password"
 }
 ```
+然後
+```shell
+cd src
+python -m main
+```
