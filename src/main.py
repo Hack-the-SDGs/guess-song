@@ -80,7 +80,10 @@ def add_score():
     try:
         limit = request.get_json()
     except:
-        print("json decode error when add score")
+        return jsonify({
+                "status": 0,
+                "msg": "json decode error when add score"
+            })
 
     if USE_TOKEN:
         try:
@@ -122,10 +125,17 @@ def add_score():
             "msg": "error when getting limit value"
         })
 
-    scores[str(limit["group"])] = scores[str(limit["group"])] + score
+    try:
+        scores[str(limit["group"])] = scores[str(limit["group"])] + score
 
-    with open("data/score.json", 'w') as file:
-        json.dump(scores, file, indent=4)
+        with open("data/score.json", 'w') as file:
+            json.dump(scores, file, indent=4)
+
+    except Exception as e:
+        return jsonify({
+            "status": 0,
+            "msg": f"error when change score.json: {e} \n score data: {scores}"
+        })
 
     return jsonify({
             "status": 1,
@@ -135,15 +145,39 @@ def add_score():
 
 @app.route("/api/SetScore", methods=["POST"])
 def set_score():
-    group: int
-    score: int
+    json_data: json
     try:
-        group = int(request.form.get("group"))
-        score = int(request.form.get("score"))
+        json_data = request.get_json()
     except:
         return jsonify({
+                "status": 0,
+                "msg": "json decode error when add score"
+            })
+
+    print("jsondecode")
+
+    group: int
+    score: int
+    
+    try:
+        group = json_data["group"]
+        score = json_data["score"]
+    except Exception as e:
+        return jsonify({
             "status": 0,
-            "msg": "unaccept group, score value"
+            "msg": "unaccept value in json when set score"
+        })
+
+    if type(group) != int:
+        return jsonify({
+            "status": 0,
+            "msg": "unaccept group value"
+        })
+
+    if type(score) != int:
+        return jsonify({
+            "status": 0,
+            "msg": "unaccept score value"
         })
 
     if group < 1 or 6 < group:
@@ -163,6 +197,8 @@ def set_score():
             "status": 0,
             "msg": f"error when change score.json: {e} \n score data: {scores}"
         })
+
+    print("write out")
 
     return jsonify({
             "status": "success",

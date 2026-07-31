@@ -51,7 +51,19 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("group", document.getElementById('group_set').valueAsNumber)
         formData.append("score", document.getElementById('score').valueAsNumber)
 
-        fetch('/api/SetScore', { method: 'POST', body: formData })
+        const json_data = {
+            token: localStorage.getItem('ntust_camp_token'),
+            group: document.getElementById('group_set').valueAsNumber,
+            score: document.getElementById('score').valueAsNumber
+        };
+
+        fetch('/api/SetScore', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(json_data)
+            })
             .then(res => res.json())
             .then(data => {
                 if (data.status == 1) {
