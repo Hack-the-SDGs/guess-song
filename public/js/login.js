@@ -2,12 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const btn = document.getElementById('submit');
 
     function send_login() {
-        username = document.getElementById("username").value;
-        password = document.getElementById("password").value;
-
         const formData = new FormData()
-        formData.append('username', username);
-        formData.append('password', password);
+        formData.append('username', document.getElementById("username").value);
+        formData.append('password', document.getElementById("password").value);
 
         fetch('/api/login', { method: 'POST', body: formData })
             .then(res => res.json())
@@ -15,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.status == 1) {
                     localStorage.setItem('ntust_camp_token', data.token);
                     window.location.href = '/dashboard';
+                } else {
+                    alert(data.msg);
                 }
             });
     }

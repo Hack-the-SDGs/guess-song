@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     function updataScore(data) {
         for(var i = 1; i < 7; i++) {
-            i_str = i.toString();
+            const i_str = i.toString();
             const firstTextarea = document.getElementById("t" + i_str).querySelector("textarea");
             firstTextarea.textContent = data[i_str].toString()
         }
