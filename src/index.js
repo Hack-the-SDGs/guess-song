@@ -81,7 +81,7 @@ async function handleAddScore(env, body) {
     if (!(await requireAuth(env, body))) return fail("please login", 401);
     if (!isGroup(body.group)) return fail("unaccept group value");
 
-    const delta = [body.year, body.name, body.SD].filter((v) => v === true).length;
+    const delta = [body.year, body.name, body.sing, body.dance].filter((v) => v === true).length;
     const scores = await readScores(env);
     scores[String(body.group)] = Math.min(MAX_SCORE, (scores[String(body.group)] ?? 0) + delta);
     await writeScores(env, scores);

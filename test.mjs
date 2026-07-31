@@ -43,13 +43,20 @@ assert.ok(token, "登入成功應該拿到 token");
 assert.equal((await post("/api/AddScore", { group: 1, year: true })).status, 401);
 assert.equal((await post("/api/AddScore", { token: "1893456000.aaaa", group: 1, year: true })).status, 401);
 
-// 加分：三個都勾 = +3
-assert.equal((await post("/api/AddScore", { token, group: 3, year: true, name: true, SD: true })).status, 200);
-assert.equal((await scores())["3"], 3);
+// 加分：四個都勾 = +4（唱、跳分開算）
+assert.equal(
+    (await post("/api/AddScore", { token, group: 3, year: true, name: true, sing: true, dance: true })).status,
+    200,
+);
+assert.equal((await scores())["3"], 4);
 
 // 只勾一個 = +1，且累加
 await post("/api/AddScore", { token, group: 3, name: true });
-assert.equal((await scores())["3"], 4);
+assert.equal((await scores())["3"], 5);
+
+// 只唱沒跳 = +1
+await post("/api/AddScore", { token, group: 3, sing: true });
+assert.equal((await scores())["3"], 6);
 
 // 組別越界要擋（原本 Flask 版允許 group=0，會寫出 NaN）
 for (const group of [0, 7, "3", 1.5]) {

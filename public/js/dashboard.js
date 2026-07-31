@@ -52,7 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
             group: document.getElementById('group').valueAsNumber,
             year: document.getElementById('year').checked,
             name: document.getElementById('name').checked,
-            SD: document.getElementById('SD').checked
+            sing: document.getElementById('sing').checked,
+            dance: document.getElementById('dance').checked
         });
     }
 

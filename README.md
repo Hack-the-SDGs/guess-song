@@ -57,7 +57,7 @@ npx wrangler deploy
 |---|---|---|---|
 | `/api/GetScore` | GET | — | 回 `{"1":0,...,"6":0}` |
 | `/api/login` | POST | form: `username`, `password` | 回 `{status, msg, token}`，token 12 小時到期 |
-| `/api/AddScore` | POST | json: `token`, `group`, `year`, `name`, `SD` | 每個 `true` 加 1 分 |
+| `/api/AddScore` | POST | json: `token`, `group`, `year`, `name`, `sing`, `dance` | 每個 `true` 加 1 分 |
 | `/api/SetScore` | POST | json: `token`, `group`, `score` | 直接指定分數 |
 
 `group` 是 1–6 的整數，`score` 是 0–99 的整數。認證失敗回 401，參數錯回 400。
