@@ -1,75 +1,52 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const TOKEN_KEY = 'ntust_camp_token';
+// defer 載入，DOM 已就緒；refreshScores 來自 /js/scores.js
+const TOKEN_KEY = "ntust_camp_token";
 
-    if (!localStorage.getItem(TOKEN_KEY)) {
-        window.location.href = '/login';
-        return;
-    }
+if (!localStorage.getItem(TOKEN_KEY)) {
+    window.location.href = "/login";
+}
 
-    function updataScore(data) {
-        for (var i = 1; i < 7; i++) {
-            const i_str = i.toString();
-            const firstTextarea = document.getElementById("t" + i_str).querySelector("textarea");
-            firstTextarea.textContent = data[i_str].toString()
-        }
-    }
+function logout() {
+    localStorage.removeItem(TOKEN_KEY);
+    window.location.href = "/login";
+}
 
-    async function getAndUpdate() {
-        const res = await fetch("/api/GetScore");
-        const data = await res.json();
-        updataScore(data);
-    }
-
-    function logout() {
-        localStorage.removeItem(TOKEN_KEY);
-        window.location.href = '/login';
-    }
-
-    // ponytail: token 過期就直接踢回登入頁，沒有 refresh 機制
-    async function post(url, json_data) {
+// ponytail: token 過期就直接踢回登入頁，沒有 refresh 機制
+async function post(url, payload) {
+    try {
         const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(json_data)
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ token: localStorage.getItem(TOKEN_KEY), ...payload }),
         });
 
-        if (res.status === 401) {
-            logout();
-            return;
-        }
+        if (res.status === 401) return logout();
 
         const data = await res.json();
-        if (data.status == 1) {
-            getAndUpdate();
+        if (data.status === 1) {
+            void refreshScores();
         } else {
             alert(data.msg);
         }
+    } catch {
+        alert("網路錯誤，請再試一次");
     }
+}
 
-    function add_score() {
-        post('/api/AddScore', {
-            token: localStorage.getItem(TOKEN_KEY),
-            group: document.getElementById('group').valueAsNumber,
-            year: document.getElementById('year').checked,
-            name: document.getElementById('name').checked,
-            sing: document.getElementById('sing').checked,
-            dance: document.getElementById('dance').checked
-        });
-    }
-
-    function set_score() {
-        post('/api/SetScore', {
-            token: localStorage.getItem(TOKEN_KEY),
-            group: document.getElementById('group_set').valueAsNumber,
-            score: document.getElementById('score').valueAsNumber
-        });
-    }
-
-    document.getElementById('add_score_btn').addEventListener('click', add_score);
-    document.getElementById('set_score_btn').addEventListener('click', set_score);
-    document.getElementById('logout_btn').addEventListener('click', logout);
-
-    getAndUpdate()
-
-    setInterval(getAndUpdate, 1000);
+document.getElementById("add_score_btn").addEventListener("click", () => {
+    void post("/api/AddScore", {
+        group: document.getElementById("group").valueAsNumber,
+        year: document.getElementById("year").checked,
+        name: document.getElementById("name").checked,
+        sing: document.getElementById("sing").checked,
+        dance: document.getElementById("dance").checked,
+    });
 });
+
+document.getElementById("set_score_btn").addEventListener("click", () => {
+    void post("/api/SetScore", {
+        group: document.getElementById("group_set").valueAsNumber,
+        score: document.getElementById("score").valueAsNumber,
+    });
+});
+
+document.getElementById("logout_btn").addEventListener("click", logout);
