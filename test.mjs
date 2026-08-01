@@ -1,20 +1,28 @@
 // ponytail: 一個檔案的煙霧測試，跑 `node test.mjs`。沒有測試框架。
 import assert from "node:assert/strict";
-import worker from "./src/index.js";
+import worker, { Scores } from "./src/index.js";
+
+const mockKv = (map) => ({
+    get: async (k, type) => {
+        const v = map.get(k) ?? null;
+        return v && type === "json" ? JSON.parse(v) : v;
+    },
+});
+
+const mockCtx = () => {
+    const store = new Map();
+    return { storage: { get: async (k) => store.get(k), put: async (k, v) => store.set(k, v) } };
+};
 
 const kv = new Map();
 const env = {
     USERNAME: "admin",
     PASSWORD: "pw",
     AUTH_SECRET: "secret",
-    KV: {
-        get: async (k, type) => {
-            const v = kv.get(k) ?? null;
-            return v && type === "json" ? JSON.parse(v) : v;
-        },
-        put: async (k, v) => kv.set(k, v),
-    },
+    KV: mockKv(kv),
 };
+const scoresDo = new Scores(mockCtx(), env);
+env.SCORES = { getByName: () => scoresDo };
 
 const call = (path, init) => worker.fetch(new Request("https://x" + path, init), env);
 
@@ -77,5 +85,16 @@ assert.equal((await post("/api/SetScore", { group: 3, score: 99 })).status, 401)
 
 // 壞掉的 JSON
 assert.equal((await call("/api/AddScore", { method: "POST", body: "{" })).status, 400);
+
+// DO 首次啟動要從舊 KV 資料 seed（部署當下分數不歸零）
+{
+    const seeded = new Scores(mockCtx(), {
+        KV: mockKv(new Map([["scores", JSON.stringify({ 1: 7, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 })]])),
+    });
+    assert.equal((await seeded.read())["1"], 7);
+    // 改 group 2 不能動到 group 1（互蓋 regression）
+    await seeded.set(2, 5);
+    assert.equal((await seeded.read())["1"], 7);
+}
 
 console.log("ok");

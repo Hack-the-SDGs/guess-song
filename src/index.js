@@ -4,6 +4,17 @@ const MAX_SCORE = 99; // UI 的 score box 只有兩位數
 
 const enc = new TextEncoder();
 
+// ponytail: node test.mjs 解析不了 cloudflare:workers,補一個同形狀的 base class
+let DurableObject = class {
+    constructor(ctx, env) {
+        this.ctx = ctx;
+        this.env = env;
+    }
+};
+try {
+    ({ DurableObject } = await import("cloudflare:workers"));
+} catch {}
+
 const json = (obj, status = 200) =>
     new Response(JSON.stringify(obj), {
         status,
@@ -57,13 +68,34 @@ async function verifyToken(secret, token) {
 
 const isGroup = (v) => Number.isInteger(v) && v >= 1 && v <= GROUPS;
 
-const readScores = async (env) => (await env.KV.get("scores", "json")) ?? emptyScores();
+// 單一 DO 序列化所有寫入：每個動作只改自己那組，多管理員同時操作不會互蓋。
+// （舊版 KV read-modify-write 會把整包舊分數壓回去，造成別組分數突然倒退。）
+export class Scores extends DurableObject {
+    async read() {
+        let scores = await this.ctx.storage.get("scores");
+        if (!scores) {
+            // ponytail: 一次性從舊 KV 資料 seed，部署當下分數不歸零；之後 KV 可整個拆掉
+            scores = (await this.env.KV.get("scores", "json")) ?? emptyScores();
+            await this.ctx.storage.put("scores", scores);
+        }
+        return scores;
+    }
 
-// ponytail: 單一 key 的 read-modify-write，並行寫入會互蓋。
-// 這是單一主控台在操作的計分板，真的需要並發再換 Durable Object。
-async function writeScores(env, scores) {
-    await env.KV.put("scores", JSON.stringify(scores));
+    async add(group, delta) {
+        const scores = await this.read();
+        await this.ctx.storage.put("scores", {
+            ...scores,
+            [group]: Math.min(MAX_SCORE, (scores[group] ?? 0) + delta),
+        });
+    }
+
+    async set(group, score) {
+        const scores = await this.read();
+        await this.ctx.storage.put("scores", { ...scores, [group]: score });
+    }
 }
+
+const scoresStub = (env) => env.SCORES.getByName("main");
 
 async function requireAuth(env, body) {
     return verifyToken(env.AUTH_SECRET, body?.token);
@@ -82,9 +114,7 @@ async function handleAddScore(env, body) {
     if (!isGroup(body.group)) return fail("unaccept group value");
 
     const delta = [body.year, body.name, body.sing, body.dance].filter((v) => v === true).length;
-    const scores = await readScores(env);
-    scores[String(body.group)] = Math.min(MAX_SCORE, (scores[String(body.group)] ?? 0) + delta);
-    await writeScores(env, scores);
+    await scoresStub(env).add(body.group, delta);
     return ok();
 }
 
@@ -95,9 +125,7 @@ async function handleSetScore(env, body) {
         return fail("unaccept score value");
     }
 
-    const scores = await readScores(env);
-    scores[String(body.group)] = body.score;
-    await writeScores(env, scores);
+    await scoresStub(env).set(body.group, body.score);
     return ok();
 }
 
@@ -106,7 +134,7 @@ export default {
         const { pathname } = new URL(request.url);
 
         if (pathname === "/api/GetScore" && request.method === "GET") {
-            return json(await readScores(env));
+            return json(await scoresStub(env).read());
         }
 
         if (request.method !== "POST") return fail("not found", 404);

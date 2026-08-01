@@ -9,11 +9,16 @@
         // /api/* 一律交給 Worker，其餘走靜態檔（/login -> public/login.html）
         "run_worker_first": ["/api/*"]
     },
+    // ponytail: KV 只剩 DO 首次啟動時 seed 舊分數用，之後可拆
     "kv_namespaces": [
         {
             "binding": "KV",
             "id": "c54be703b1ce4a2983e576d6476d7fd4"
         }
     ],
+    "durable_objects": {
+        "bindings": [{ "name": "SCORES", "class_name": "Scores" }]
+    },
+    "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Scores"] }],
     "observability": { "enabled": true }
 }
