@@ -21,3 +21,9 @@ async function sendLogin() {
 document.getElementById("submit").addEventListener("click", () => {
     void sendLogin();
 });
+
+for (const id of ["username", "password"]) {
+    document.getElementById(id).addEventListener("keydown", (e) => {
+        if (e.key === "Enter") void sendLogin();
+    });
+}
