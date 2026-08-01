@@ -71,5 +71,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     getAndUpdate()
 
-    setInterval(getAndUpdate, 3000);
+    setInterval(getAndUpdate, 1000);
 });

@@ -17,5 +17,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setInterval(async () => {
         getAndUpdate();
-    }, 3000);
+    }, 1000);
 });
