@@ -1,6 +1,6 @@
 const GROUPS = 6;
 const TOKEN_TTL = 12 * 60 * 60; // seconds
-const MAX_SCORE = 99; // UI 的 score box 只有兩位數
+const MAX_SCORE = 999; // UI 的 score box 只有兩位數
 
 const enc = new TextEncoder();
 
