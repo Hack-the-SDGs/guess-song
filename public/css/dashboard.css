@@ -268,3 +268,11 @@ html, body {
     flex-direction: column;
   }
 }
+
+@media (max-width: 450px) {
+  .score-box {
+    height: 60px;
+    font-size: 1.5rem;
+    line-height: 52px;
+  }
+}
